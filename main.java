@@ -12,9 +12,13 @@ public class main {
     Facteur facteur1 = new Facteur("PLANCHET","Mickael",Contrat.CDI,Role.TITULAIRE,t107);
     Facteur facteur2 = new Facteur("RUBIO","Charles",Contrat.INTERIM,Role.REMPLACANT,null);
     p4.ajouterATournee(t101);
-    System.out.println(facteur2.toString());
+    //System.out.println(facteur2.toString());
     //System.out.println(t101.getListePrestations());
     //System.out.println(Prestation.getToutesLesPrestations());
+    //System.out.println(facteur1.toString());
+    facteur2.setUneTournee(t113);
+    System.out.println(facteur2.toString());
+    System.out.println(facteur2.getUneTournee().getListePrestations());
  }
 
 }
