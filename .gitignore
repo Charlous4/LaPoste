@@ -1,0 +1,26 @@
+# --- JAVA ---
+# On ignore les fichiers compilés (le bytecode)
+*.class
+
+# Dossier où les IDE (Eclipse/VS Code) mettent parfois les .class
+bin/
+
+# Si tu passes un jour sur Maven ou Gradle (projets standards)
+target/
+build/
+.gradle/
+
+# --- VS CODE ---
+# On ignore les réglages spécifiques à ton éditeur
+.vscode/
+
+# --- SYSTÈME ---
+# Fichiers temporaires de Windows ou Mac
+.DS_Store
+Thumbs.db
+
+# --- DIVERS ---
+# On ignore les fichiers compressés ou les exécutables lourds
+*.jar
+*.war
+*.zip
