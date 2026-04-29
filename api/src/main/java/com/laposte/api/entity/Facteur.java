@@ -15,10 +15,6 @@ public class Facteur {
     private String contrat;
     private String role;
 
-    @ManyToOne
-    @JoinColumn(name = "id_tournee")
-    private Tournee tournee;
-
     // Getters et Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -34,7 +30,4 @@ public class Facteur {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
-
-    public Tournee getTournee() { return tournee; }
-    public void setTournee(Tournee tournee) { this.tournee = tournee; }
 }
