@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const String apiBase = 'http://192.168.105.54:8080';
+const String apiBase = 'http://192.168.105.51:8080';
 
 void main() {
   runApp(const MyApp());
@@ -288,7 +288,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
       );
       return;
     }
-    final response = await http.post(
+    await http.post(
       Uri.parse('$apiBase/affectations/simple'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -298,11 +298,9 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
         'roleAffectation': 'TITULAIRE',
       }),
     );
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(backgroundColor: Colors.green, content: Text('Affectation enregistrée !')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(backgroundColor: Colors.green, content: Text('Affectation enregistrée !')),
+    );
   }
 
   Future<void> pickDate() async {
@@ -643,19 +641,35 @@ class AdminPage extends StatelessWidget {
         title: const Text('Administration', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(48),
-          child: Wrap(
-            spacing: 24,
-            runSpacing: 24,
-            alignment: WrapAlignment.center,
-            children: [
-              _MenuTile(icon: Icons.person_add, label: 'Nouveau facteur', color: Colors.deepPurple, page: const NouveauFacteurPage()),
-              _MenuTile(icon: Icons.add_road, label: 'Nouvelle tournée', color: Colors.teal, page: const NouvelleTourneePage()),
-              _MenuTile(icon: Icons.add_box, label: 'Nouvelle prestation', color: Colors.orange, page: const NouvellePrestationPage()),
-            ],
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Créer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _MenuTile(icon: Icons.person_add, label: 'Nouveau facteur', color: Colors.deepPurple, page: const NouveauFacteurPage()),
+                _MenuTile(icon: Icons.add_road, label: 'Nouvelle tournée', color: Colors.teal, page: const NouvelleTourneePage()),
+                _MenuTile(icon: Icons.add_box, label: 'Nouvelle prestation', color: Colors.orange, page: const NouvellePrestationPage()),
+              ],
+            ),
+            const SizedBox(height: 32),
+            const Text('Gérer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _MenuTile(icon: Icons.people, label: 'Facteurs', color: Colors.deepPurple, page: const GererFacteursPage()),
+                _MenuTile(icon: Icons.route, label: 'Tournées', color: Colors.teal, page: const GererTourneesPage()),
+                _MenuTile(icon: Icons.local_shipping, label: 'Prestations', color: Colors.orange, page: const GererPrestationsPage()),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -677,25 +691,16 @@ class _NouveauFacteurPageState extends State<NouveauFacteurPage> {
 
   Future<void> creer() async {
     if (nomController.text.isEmpty || prenomController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Remplis tous les champs')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis tous les champs')));
       return;
     }
     final response = await http.post(
       Uri.parse('$apiBase/facteurs'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'nom': nomController.text.toUpperCase(),
-        'prenom': prenomController.text,
-        'contrat': selectedContrat,
-        'role': selectedRole,
-      }),
+      body: jsonEncode({'nom': nomController.text.toUpperCase(), 'prenom': prenomController.text, 'contrat': selectedContrat, 'role': selectedRole}),
     );
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(backgroundColor: Colors.green, content: Text('Facteur créé !')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Facteur créé !')));
       nomController.clear();
       prenomController.clear();
     }
@@ -705,91 +710,28 @@ class _NouveauFacteurPageState extends State<NouveauFacteurPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: Colors.black87,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Nouveau facteur', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
-      ),
+      appBar: AppBar(backgroundColor: Colors.black87, elevation: 0, iconTheme: const IconThemeData(color: Colors.white), title: const Text('Nouveau facteur', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Nom', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: nomController,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                hintText: 'DUPONT',
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text('Prénom', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: prenomController,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                hintText: 'Jean',
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text('Contrat', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: selectedContrat,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'CDI', child: Text('CDI')),
-                DropdownMenuItem(value: 'CDD', child: Text('CDD')),
-                DropdownMenuItem(value: 'INTERIM', child: Text('Intérim')),
-              ],
-              onChanged: (val) => setState(() => selectedContrat = val!),
-            ),
-            const SizedBox(height: 20),
-            const Text('Rôle', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: selectedRole,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')),
-                DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')),
-                DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur')),
-              ],
-              onChanged: (val) => setState(() => selectedRole = val!),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: creer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 0,
-                ),
-                child: const Text('Créer le facteur', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-              ),
-            ),
-          ],
-        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Nom', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(controller: nomController, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), hintText: 'DUPONT')),
+          const SizedBox(height: 20),
+          const Text('Prénom', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(controller: prenomController, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), hintText: 'Jean')),
+          const SizedBox(height: 20),
+          const Text('Contrat', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(value: selectedContrat, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'CDI', child: Text('CDI')), DropdownMenuItem(value: 'CDD', child: Text('CDD')), DropdownMenuItem(value: 'INTERIM', child: Text('Intérim'))], onChanged: (val) => setState(() => selectedContrat = val!)),
+          const SizedBox(height: 20),
+          const Text('Rôle', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(value: selectedRole, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')), DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')), DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur'))], onChanged: (val) => setState(() => selectedRole = val!)),
+          const SizedBox(height: 32),
+          SizedBox(width: double.infinity, child: ElevatedButton(onPressed: creer, style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0), child: const Text('Créer le facteur', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+        ]),
       ),
     );
   }
@@ -809,24 +751,12 @@ class _NouvelleTourneePageState extends State<NouvelleTourneePage> {
 
   Future<void> creer() async {
     if (numeroController.text.isEmpty || ruesController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Remplis tous les champs')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis tous les champs')));
       return;
     }
-    final response = await http.post(
-      Uri.parse('$apiBase/tournees'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'numero': int.parse(numeroController.text),
-        'vehicule': selectedVehicule,
-        'rues': ruesController.text,
-      }),
-    );
+    final response = await http.post(Uri.parse('$apiBase/tournees'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'numero': int.parse(numeroController.text), 'vehicule': selectedVehicule, 'rues': ruesController.text}));
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(backgroundColor: Colors.green, content: Text('Tournée créée !')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Tournée créée !')));
       numeroController.clear();
       ruesController.clear();
     }
@@ -836,77 +766,24 @@ class _NouvelleTourneePageState extends State<NouvelleTourneePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: Colors.black87,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Nouvelle tournée', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
-      ),
+      appBar: AppBar(backgroundColor: Colors.black87, elevation: 0, iconTheme: const IconThemeData(color: Colors.white), title: const Text('Nouvelle tournée', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Numéro', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: numeroController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                hintText: '3101',
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text('Véhicule', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: selectedVehicule,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'VAE', child: Text('VAE')),
-                DropdownMenuItem(value: 'VCAE', child: Text('VCAE')),
-                DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')),
-                DropdownMenuItem(value: 'STABY', child: Text('Staby')),
-              ],
-              onChanged: (val) => setState(() => selectedVehicule = val!),
-            ),
-            const SizedBox(height: 20),
-            const Text('Rues', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: ruesController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                hintText: 'Rue Alfred Herault, Rue du General Reibel...',
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: creer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 0,
-                ),
-                child: const Text('Créer la tournée', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-              ),
-            ),
-          ],
-        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Numéro', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(controller: numeroController, keyboardType: TextInputType.number, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), hintText: '3101')),
+          const SizedBox(height: 20),
+          const Text('Véhicule', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(value: selectedVehicule, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'VAE', child: Text('VAE')), DropdownMenuItem(value: 'VCAE', child: Text('VCAE')), DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')), DropdownMenuItem(value: 'STABY', child: Text('Staby'))], onChanged: (val) => setState(() => selectedVehicule = val!)),
+          const SizedBox(height: 20),
+          const Text('Rues', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(controller: ruesController, maxLines: 4, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), hintText: 'Rue Alfred Herault, Rue du General Reibel...')),
+          const SizedBox(height: 32),
+          SizedBox(width: double.infinity, child: ElevatedButton(onPressed: creer, style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0), child: const Text('Créer la tournée', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+        ]),
       ),
     );
   }
@@ -938,27 +815,14 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
 
   Future<void> creer() async {
     if (adresseController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Remplis l\'adresse')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis l\'adresse')));
       return;
     }
-    final body = {
-      'type': selectedType,
-      'adresse': adresseController.text,
-    };
-    if (selectedTourneeId != null) {
-      body['tournee'] = {'id': selectedTourneeId} as dynamic;
-    }
-    final response = await http.post(
-      Uri.parse('$apiBase/prestations'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    final body = {'type': selectedType, 'adresse': adresseController.text};
+    if (selectedTourneeId != null) body['tournee'] = {'id': selectedTourneeId} as dynamic;
+    final response = await http.post(Uri.parse('$apiBase/prestations'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(backgroundColor: Colors.green, content: Text('Prestation créée !')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Prestation créée !')));
       adresseController.clear();
     }
   }
@@ -967,81 +831,293 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: Colors.black87,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Nouvelle prestation', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
-      ),
+      appBar: AppBar(backgroundColor: Colors.black87, elevation: 0, iconTheme: const IconThemeData(color: Colors.white), title: const Text('Nouvelle prestation', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: selectedType,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')),
-                DropdownMenuItem(value: 'Collecte', child: Text('Collecte')),
-                DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal')),
-              ],
-              onChanged: (val) => setState(() => selectedType = val!),
-            ),
-            const SizedBox(height: 20),
-            const Text('Adresse', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: adresseController,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                hintText: '12 Rue des Lilas',
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text('Tournée (optionnel)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<int?>(
-              value: selectedTourneeId,
-              decoration: InputDecoration(
-                filled: true, fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-              ),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Aucune', style: TextStyle(color: Colors.grey))),
-                ...tournees.map((t) => DropdownMenuItem<int?>(
-                  value: t['id'] as int,
-                  child: Text('T${t['numero']} — ${t['vehicule']}'),
-                )),
-              ],
-              onChanged: (val) => setState(() => selectedTourneeId = val),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: creer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 0,
-                ),
-                child: const Text('Créer la prestation', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-              ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(value: selectedType, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')), DropdownMenuItem(value: 'Collecte', child: Text('Collecte')), DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal'))], onChanged: (val) => setState(() => selectedType = val!)),
+          const SizedBox(height: 20),
+          const Text('Adresse', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(controller: adresseController, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), hintText: '12 Rue des Lilas')),
+          const SizedBox(height: 20),
+          const Text('Tournée (optionnel)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<int?>(value: selectedTourneeId, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: [const DropdownMenuItem<int?>(value: null, child: Text('Aucune', style: TextStyle(color: Colors.grey))), ...tournees.map((t) => DropdownMenuItem<int?>(value: t['id'] as int, child: Text('T${t['numero']} — ${t['vehicule']}')))], onChanged: (val) => setState(() => selectedTourneeId = val)),
+          const SizedBox(height: 32),
+          SizedBox(width: double.infinity, child: ElevatedButton(onPressed: creer, style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0), child: const Text('Créer la prestation', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+        ]),
+      ),
+    );
+  }
+}
+
+class GererFacteursPage extends StatefulWidget {
+  const GererFacteursPage({super.key});
+
+  @override
+  State<GererFacteursPage> createState() => _GererFacteursPageState();
+}
+
+class _GererFacteursPageState extends State<GererFacteursPage> {
+  List facteurs = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final res = await http.get(Uri.parse('$apiBase/facteurs'));
+    setState(() { facteurs = jsonDecode(res.body); loading = false; });
+  }
+
+  Future<void> supprimer(int id) async {
+    await http.delete(Uri.parse('$apiBase/facteurs/$id'));
+    await fetchData();
+  }
+
+  void modifier(Map facteur) {
+    final nomController = TextEditingController(text: facteur['nom']);
+    final prenomController = TextEditingController(text: facteur['prenom']);
+    String contrat = facteur['contrat'];
+    String role = facteur['role'];
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Modifier le facteur'),
+          content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: nomController, decoration: const InputDecoration(labelText: 'Nom')),
+            TextField(controller: prenomController, decoration: const InputDecoration(labelText: 'Prénom')),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(value: contrat, decoration: const InputDecoration(labelText: 'Contrat'), items: const [DropdownMenuItem(value: 'CDI', child: Text('CDI')), DropdownMenuItem(value: 'CDD', child: Text('CDD')), DropdownMenuItem(value: 'INTERIM', child: Text('Intérim'))], onChanged: (val) => setStateDialog(() => contrat = val!)),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(value: role, decoration: const InputDecoration(labelText: 'Rôle'), items: const [DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')), DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')), DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur'))], onChanged: (val) => setStateDialog(() => role = val!)),
+          ])),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
+              onPressed: () async {
+                await http.put(Uri.parse('$apiBase/facteurs/${facteur['id']}'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'nom': nomController.text.toUpperCase(), 'prenom': prenomController.text, 'contrat': contrat, 'role': role}));
+                Navigator.pop(context);
+                await fetchData();
+              },
+              child: const Text('Enregistrer'),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: AppBar(backgroundColor: Colors.black87, elevation: 0, iconTheme: const IconThemeData(color: Colors.white), title: const Text('Gérer les facteurs', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
+      body: loading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: facteurs.length,
+        itemBuilder: (context, index) {
+          final f = facteurs[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.deepPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.person, color: Colors.deepPurple, size: 22)),
+              title: Text('${f['prenom']} ${f['nom']}', style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text('${f['role']} — ${f['contrat']}', style: const TextStyle(fontSize: 13, color: Colors.grey)),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(icon: const Icon(Icons.edit, color: Colors.deepPurple), onPressed: () => modifier(f)),
+                IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('Supprimer ?'), content: Text('Supprimer ${f['prenom']} ${f['nom']} ?'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), onPressed: () { Navigator.pop(context); supprimer(f['id'] as int); }, child: const Text('Supprimer'))]))),
+              ]),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class GererTourneesPage extends StatefulWidget {
+  const GererTourneesPage({super.key});
+
+  @override
+  State<GererTourneesPage> createState() => _GererTourneesPageState();
+}
+
+class _GererTourneesPageState extends State<GererTourneesPage> {
+  List tournees = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final res = await http.get(Uri.parse('$apiBase/tournees'));
+    setState(() { tournees = jsonDecode(res.body); loading = false; });
+  }
+
+  Future<void> supprimer(int id) async {
+    await http.delete(Uri.parse('$apiBase/tournees/$id'));
+    await fetchData();
+  }
+
+  void modifier(Map tournee) {
+    final numeroController = TextEditingController(text: '${tournee['numero']}');
+    final ruesController = TextEditingController(text: tournee['rues']);
+    String vehicule = tournee['vehicule'];
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Modifier la tournée'),
+          content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: numeroController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Numéro')),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(value: vehicule, decoration: const InputDecoration(labelText: 'Véhicule'), items: const [DropdownMenuItem(value: 'VAE', child: Text('VAE')), DropdownMenuItem(value: 'VCAE', child: Text('VCAE')), DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')), DropdownMenuItem(value: 'STABY', child: Text('Staby'))], onChanged: (val) => setStateDialog(() => vehicule = val!)),
+            const SizedBox(height: 12),
+            TextField(controller: ruesController, maxLines: 3, decoration: const InputDecoration(labelText: 'Rues')),
+          ])),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),
+              onPressed: () async {
+                await http.put(Uri.parse('$apiBase/tournees/${tournee['id']}'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'numero': int.parse(numeroController.text), 'vehicule': vehicule, 'rues': ruesController.text}));
+                Navigator.pop(context);
+                await fetchData();
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: AppBar(backgroundColor: Colors.black87, elevation: 0, iconTheme: const IconThemeData(color: Colors.white), title: const Text('Gérer les tournées', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
+      body: loading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: tournees.length,
+        itemBuilder: (context, index) {
+          final t = tournees[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.route, color: Colors.teal, size: 22)),
+              title: Text('T${t['numero']} — ${t['vehicule']}', style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(t['rues'] ?? '', style: const TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(icon: const Icon(Icons.edit, color: Colors.teal), onPressed: () => modifier(t)),
+                IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('Supprimer ?'), content: Text('Supprimer la tournée T${t['numero']} ?'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), onPressed: () { Navigator.pop(context); supprimer(t['id'] as int); }, child: const Text('Supprimer'))]))),
+              ]),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class GererPrestationsPage extends StatefulWidget {
+  const GererPrestationsPage({super.key});
+
+  @override
+  State<GererPrestationsPage> createState() => _GererPrestationsPageState();
+}
+
+class _GererPrestationsPageState extends State<GererPrestationsPage> {
+  List prestations = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final res = await http.get(Uri.parse('$apiBase/prestations'));
+    setState(() { prestations = jsonDecode(res.body); loading = false; });
+  }
+
+  Future<void> supprimer(int id) async {
+    await http.delete(Uri.parse('$apiBase/prestations/$id'));
+    await fetchData();
+  }
+
+  void modifier(Map prestation) {
+    final adresseController = TextEditingController(text: prestation['adresse']);
+    String type = prestation['type'];
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Modifier la prestation'),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            DropdownButtonFormField<String>(value: type, decoration: const InputDecoration(labelText: 'Type'), items: const [DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')), DropdownMenuItem(value: 'Collecte', child: Text('Collecte')), DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal'))], onChanged: (val) => setStateDialog(() => type = val!)),
+            const SizedBox(height: 12),
+            TextField(controller: adresseController, decoration: const InputDecoration(labelText: 'Adresse')),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+              onPressed: () async {
+                await http.put(Uri.parse('$apiBase/prestations/${prestation['id']}'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'type': type, 'adresse': adresseController.text}));
+                Navigator.pop(context);
+                await fetchData();
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: AppBar(backgroundColor: Colors.black87, elevation: 0, iconTheme: const IconThemeData(color: Colors.white), title: const Text('Gérer les prestations', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
+      body: loading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: prestations.length,
+        itemBuilder: (context, index) {
+          final p = prestations[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.local_shipping, color: Colors.orange, size: 22)),
+              title: Text(p['type'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(p['adresse'] ?? '', style: const TextStyle(fontSize: 13, color: Colors.grey)),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(icon: const Icon(Icons.edit, color: Colors.orange), onPressed: () => modifier(p)),
+                IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('Supprimer ?'), content: Text('Supprimer ${p['type']} ?'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), onPressed: () { Navigator.pop(context); supprimer(p['id'] as int); }, child: const Text('Supprimer'))]))),
+              ]),
+            ),
+          );
+        },
       ),
     );
   }
@@ -1055,11 +1131,7 @@ class PlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFD700),
-        elevation: 0,
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      ),
+      appBar: AppBar(backgroundColor: const Color(0xFFFFD700), elevation: 0, title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600))),
       body: const SizedBox(),
     );
   }
