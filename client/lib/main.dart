@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const String apiBase = 'http://192.168.1.59:8080'; // A MODIFIER A CHAQUE FOIS
+const String apiBase = 'http://192.168.1.14:8080'; // A MODIFIER A CHAQUE FOIS
 
 void main() {
   runApp(const MyApp());
