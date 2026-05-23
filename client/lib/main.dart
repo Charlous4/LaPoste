@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const String apiBase = 'http://192.168.105.51:8080'; // A MODIFIER A CHAQUE FOIS
+const String apiBase = 'http://192.168.1.59:8080'; // A MODIFIER A CHAQUE FOIS
 
 void main() {
   runApp(const MyApp());
@@ -121,7 +121,7 @@ class _MenuTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -208,7 +208,7 @@ class _PrestationsPageState extends State<PrestationsPage> {
                     leading: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.15),
+                        color: color.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(_iconForType(type), color: color, size: 22),
@@ -332,7 +332,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                   const Text('Facteur', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<int?>(
-                    value: selectedFacteurId,
+                    initialValue: selectedFacteurId,
                     hint: const Text('Choisir un facteur'),
                     decoration: InputDecoration(
                       filled: true, fillColor: Colors.white,
@@ -349,7 +349,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                   const Text('Tournée', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<int?>(
-                    value: selectedTourneeId,
+                    initialValue: selectedTourneeId,
                     hint: const Text('Choisir une tournée'),
                     decoration: InputDecoration(
                       filled: true, fillColor: Colors.white,
@@ -481,7 +481,7 @@ class _AffecterTourneePageState extends State<AffecterTourneePage> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<int?>(
-                        value: currentTourneeId,
+                        initialValue: currentTourneeId,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
@@ -573,7 +573,7 @@ class _PlanningPageState extends State<PlanningPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFD700).withOpacity(0.2),
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(Icons.person, color: Color(0xFFB8960C), size: 22),
@@ -724,11 +724,11 @@ class _NouveauFacteurPageState extends State<NouveauFacteurPage> {
           const SizedBox(height: 20),
           const Text('Contrat', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
-          DropdownButtonFormField<String>(value: selectedContrat, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'CDI', child: Text('CDI')), DropdownMenuItem(value: 'CDD', child: Text('CDD')), DropdownMenuItem(value: 'INTERIM', child: Text('Intérim'))], onChanged: (val) => setState(() => selectedContrat = val!)),
+          DropdownButtonFormField<String>(initialValue: selectedContrat, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'CDI', child: Text('CDI')), DropdownMenuItem(value: 'CDD', child: Text('CDD')), DropdownMenuItem(value: 'INTERIM', child: Text('Intérim'))], onChanged: (val) => setState(() => selectedContrat = val!)),
           const SizedBox(height: 20),
           const Text('Rôle', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
-          DropdownButtonFormField<String>(value: selectedRole, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')), DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')), DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur'))], onChanged: (val) => setState(() => selectedRole = val!)),
+          DropdownButtonFormField<String>(initialValue: selectedRole, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')), DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')), DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur'))], onChanged: (val) => setState(() => selectedRole = val!)),
           const SizedBox(height: 32),
           SizedBox(width: double.infinity, child: ElevatedButton(onPressed: creer, style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0), child: const Text('Créer le facteur', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
         ]),
@@ -776,7 +776,7 @@ class _NouvelleTourneePageState extends State<NouvelleTourneePage> {
           const SizedBox(height: 20),
           const Text('Véhicule', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
-          DropdownButtonFormField<String>(value: selectedVehicule, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'VAE', child: Text('VAE')), DropdownMenuItem(value: 'VCAE', child: Text('VCAE')), DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')), DropdownMenuItem(value: 'STABY', child: Text('Staby'))], onChanged: (val) => setState(() => selectedVehicule = val!)),
+          DropdownButtonFormField<String>(initialValue: selectedVehicule, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'VAE', child: Text('VAE')), DropdownMenuItem(value: 'VCAE', child: Text('VCAE')), DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')), DropdownMenuItem(value: 'STABY', child: Text('Staby'))], onChanged: (val) => setState(() => selectedVehicule = val!)),
           const SizedBox(height: 20),
           const Text('Rues', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
@@ -837,7 +837,7 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
-          DropdownButtonFormField<String>(value: selectedType, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')), DropdownMenuItem(value: 'Collecte', child: Text('Collecte')), DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal'))], onChanged: (val) => setState(() => selectedType = val!)),
+          DropdownButtonFormField<String>(initialValue: selectedType, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: const [DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')), DropdownMenuItem(value: 'Collecte', child: Text('Collecte')), DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal'))], onChanged: (val) => setState(() => selectedType = val!)),
           const SizedBox(height: 20),
           const Text('Adresse', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
@@ -845,7 +845,7 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
           const SizedBox(height: 20),
           const Text('Tournée (optionnel)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 8),
-          DropdownButtonFormField<int?>(value: selectedTourneeId, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: [const DropdownMenuItem<int?>(value: null, child: Text('Aucune', style: TextStyle(color: Colors.grey))), ...tournees.map((t) => DropdownMenuItem<int?>(value: t['id'] as int, child: Text('T${t['numero']} — ${t['vehicule']}')))], onChanged: (val) => setState(() => selectedTourneeId = val)),
+          DropdownButtonFormField<int?>(initialValue: selectedTourneeId, decoration: InputDecoration(filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300))), items: [const DropdownMenuItem<int?>(value: null, child: Text('Aucune', style: TextStyle(color: Colors.grey))), ...tournees.map((t) => DropdownMenuItem<int?>(value: t['id'] as int, child: Text('T${t['numero']} — ${t['vehicule']}')))], onChanged: (val) => setState(() => selectedTourneeId = val)),
           const SizedBox(height: 32),
           SizedBox(width: double.infinity, child: ElevatedButton(onPressed: creer, style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0), child: const Text('Créer la prestation', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
         ]),
@@ -895,9 +895,9 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
             TextField(controller: nomController, decoration: const InputDecoration(labelText: 'Nom')),
             TextField(controller: prenomController, decoration: const InputDecoration(labelText: 'Prénom')),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(value: contrat, decoration: const InputDecoration(labelText: 'Contrat'), items: const [DropdownMenuItem(value: 'CDI', child: Text('CDI')), DropdownMenuItem(value: 'CDD', child: Text('CDD')), DropdownMenuItem(value: 'INTERIM', child: Text('Intérim'))], onChanged: (val) => setStateDialog(() => contrat = val!)),
+            DropdownButtonFormField<String>(initialValue: contrat, decoration: const InputDecoration(labelText: 'Contrat'), items: const [DropdownMenuItem(value: 'CDI', child: Text('CDI')), DropdownMenuItem(value: 'CDD', child: Text('CDD')), DropdownMenuItem(value: 'INTERIM', child: Text('Intérim'))], onChanged: (val) => setStateDialog(() => contrat = val!)),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(value: role, decoration: const InputDecoration(labelText: 'Rôle'), items: const [DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')), DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')), DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur'))], onChanged: (val) => setStateDialog(() => role = val!)),
+            DropdownButtonFormField<String>(initialValue: role, decoration: const InputDecoration(labelText: 'Rôle'), items: const [DropdownMenuItem(value: 'TITULAIRE', child: Text('Titulaire')), DropdownMenuItem(value: 'REMPLACANT', child: Text('Remplaçant')), DropdownMenuItem(value: 'ROULEUR', child: Text('Rouleur'))], onChanged: (val) => setStateDialog(() => role = val!)),
           ])),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
@@ -931,7 +931,7 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.deepPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.person, color: Colors.deepPurple, size: 22)),
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.deepPurple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.person, color: Colors.deepPurple, size: 22)),
               title: Text('${f['prenom']} ${f['nom']}', style: const TextStyle(fontWeight: FontWeight.w600)),
               subtitle: Text('${f['role']} — ${f['contrat']}', style: const TextStyle(fontSize: 13, color: Colors.grey)),
               trailing: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -985,7 +985,7 @@ class _GererTourneesPageState extends State<GererTourneesPage> {
           content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(controller: numeroController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Numéro')),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(value: vehicule, decoration: const InputDecoration(labelText: 'Véhicule'), items: const [DropdownMenuItem(value: 'VAE', child: Text('VAE')), DropdownMenuItem(value: 'VCAE', child: Text('VCAE')), DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')), DropdownMenuItem(value: 'STABY', child: Text('Staby'))], onChanged: (val) => setStateDialog(() => vehicule = val!)),
+            DropdownButtonFormField<String>(initialValue: vehicule, decoration: const InputDecoration(labelText: 'Véhicule'), items: const [DropdownMenuItem(value: 'VAE', child: Text('VAE')), DropdownMenuItem(value: 'VCAE', child: Text('VCAE')), DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')), DropdownMenuItem(value: 'STABY', child: Text('Staby'))], onChanged: (val) => setStateDialog(() => vehicule = val!)),
             const SizedBox(height: 12),
             TextField(controller: ruesController, maxLines: 3, decoration: const InputDecoration(labelText: 'Rues')),
           ])),
@@ -1021,7 +1021,7 @@ class _GererTourneesPageState extends State<GererTourneesPage> {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.route, color: Colors.teal, size: 22)),
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.teal.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.route, color: Colors.teal, size: 22)),
               title: Text('T${t['numero']} — ${t['vehicule']}', style: const TextStyle(fontWeight: FontWeight.w600)),
               subtitle: Text(t['rues'] ?? '', style: const TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
               trailing: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -1072,7 +1072,7 @@ class _GererPrestationsPageState extends State<GererPrestationsPage> {
         builder: (context, setStateDialog) => AlertDialog(
           title: const Text('Modifier la prestation'),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
-            DropdownButtonFormField<String>(value: type, decoration: const InputDecoration(labelText: 'Type'), items: const [DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')), DropdownMenuItem(value: 'Collecte', child: Text('Collecte')), DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal'))], onChanged: (val) => setStateDialog(() => type = val!)),
+            DropdownButtonFormField<String>(initialValue: type, decoration: const InputDecoration(labelText: 'Type'), items: const [DropdownMenuItem(value: 'BAL Jaune', child: Text('BAL Jaune')), DropdownMenuItem(value: 'Collecte', child: Text('Collecte')), DropdownMenuItem(value: 'ExpBal', child: Text('ExpBal'))], onChanged: (val) => setStateDialog(() => type = val!)),
             const SizedBox(height: 12),
             TextField(controller: adresseController, decoration: const InputDecoration(labelText: 'Adresse')),
           ]),
@@ -1108,7 +1108,7 @@ class _GererPrestationsPageState extends State<GererPrestationsPage> {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.local_shipping, color: Colors.orange, size: 22)),
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.local_shipping, color: Colors.orange, size: 22)),
               title: Text(p['type'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
               subtitle: Text(p['adresse'] ?? '', style: const TextStyle(fontSize: 13, color: Colors.grey)),
               trailing: Row(mainAxisSize: MainAxisSize.min, children: [
