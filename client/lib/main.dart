@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:http/http.dart' as http; // Package pour faire des requêtes HTTP vers l'API
+import 'dart:convert'; // Pour encoder/décoder le JSON
 
+// Adresse de base de l'API Spring Boot — à modifier à chaque changement de réseau
 const String apiBase = 'http://192.168.1.14:8080'; // A MODIFIER A CHAQUE FOIS
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp()); // Point d'entrée de l'application Flutter
 }
 
+// Widget racine de l'application — configure le thème global
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -15,35 +17,37 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Gestion La Poste',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Masque le bandeau "debug" en haut à droite
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFD700)),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFD700)), // Thème jaune La Poste
+        useMaterial3: true, // Utilise la dernière version du design Material
         cardTheme: CardThemeData(
-          elevation: 0,
+          elevation: 0, // Pas d'ombre sur les cartes
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.shade200),
+            side: BorderSide(color: Colors.grey.shade200), // Bordure grise légère
           ),
         ),
       ),
-      home: const HomePage(),
+      home: const HomePage(), // Page affichée au démarrage
     );
   }
 }
 
+// Page d'accueil avec les 3 tuiles principales et les 2 boutons flottants
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: const Color(0xFFFAFAFA), // Fond gris très clair
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFD700),
+        backgroundColor: const Color(0xFFFFD700), // Barre jaune La Poste
         elevation: 0,
         title: const Text('Gestion La Poste', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
         actions: [
+          // Logo "La Poste" affiché à droite de la barre
           Container(
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -55,18 +59,21 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
+      // Deux boutons flottants empilés verticalement en bas à droite
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          // Bouton Admin (petit, noir) → ouvre la page d'administration
           FloatingActionButton.small(
-            heroTag: 'admin',
+            heroTag: 'admin', // Tag unique pour éviter les conflits d'animation
             backgroundColor: Colors.black87,
             child: const Text('A', style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold)),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPage())),
           ),
           const SizedBox(height: 12),
+          // Bouton Demande client (cyan) → ouvre la liste des prestations
           Tooltip(
-            message: 'Demande client',
+            message: 'Demande client', // Texte affiché au survol
             child: FloatingActionButton(
               heroTag: 'demande',
               backgroundColor: Colors.cyan,
@@ -76,12 +83,13 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+      // Corps de la page : 3 tuiles centrées
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(48),
           child: Wrap(
-            spacing: 24,
-            runSpacing: 24,
+            spacing: 24, // Espacement horizontal entre les tuiles
+            runSpacing: 24, // Espacement vertical si les tuiles passent à la ligne
             alignment: WrapAlignment.center,
             children: [
               _MenuTile(icon: Icons.calendar_today, label: 'Planning du jour', color: const Color(0xFFFFD700), page: const PlanningPage()),
@@ -95,17 +103,18 @@ class HomePage extends StatelessWidget {
   }
 }
 
+// Widget réutilisable représentant une tuile de menu cliquable
 class _MenuTile extends StatelessWidget {
-  final String label;
-  final Widget page;
-  final IconData icon;
-  final Color color;
+  final String label;   // Texte affiché sous l'icône
+  final Widget page;    // Page vers laquelle naviguer au clic
+  final IconData icon;  // Icône affichée dans la tuile
+  final Color color;    // Couleur de l'icône et du fond coloré
   const _MenuTile({required this.label, required this.page, required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => page)), // Navigation vers la page
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 180,
@@ -118,10 +127,11 @@ class _MenuTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Cercle coloré contenant l'icône
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
+                color: color.withValues(alpha: 0.15), // Couleur transparente à 15%
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -135,6 +145,7 @@ class _MenuTile extends StatelessWidget {
   }
 }
 
+// Page "Demande client" : liste toutes les prestations avec leur tournée associée
 class PrestationsPage extends StatefulWidget {
   const PrestationsPage({super.key});
 
@@ -143,25 +154,27 @@ class PrestationsPage extends StatefulWidget {
 }
 
 class _PrestationsPageState extends State<PrestationsPage> {
-  List prestations = [];
-  bool loading = true;
+  List prestations = []; // Liste des prestations récupérées depuis l'API
+  bool loading = true;   // Indicateur de chargement
 
   @override
   void initState() {
     super.initState();
-    fetchPrestations();
+    fetchPrestations(); // Chargement des données au démarrage de la page
   }
 
+  // Appel API GET /prestations → récupère toutes les prestations
   Future<void> fetchPrestations() async {
     final response = await http.get(Uri.parse('$apiBase/prestations'));
     if (response.statusCode == 200) {
       setState(() {
-        prestations = jsonDecode(response.body);
+        prestations = jsonDecode(response.body); // Décode le JSON en liste Dart
         loading = false;
       });
     }
   }
 
+  // Retourne l'icône correspondant au type de prestation
   IconData _iconForType(String type) {
     switch (type.toLowerCase()) {
       case 'collecte': return Icons.inbox;
@@ -170,6 +183,7 @@ class _PrestationsPageState extends State<PrestationsPage> {
     }
   }
 
+  // Retourne la couleur correspondant au type de prestation
   Color _colorForType(String type) {
     switch (type.toLowerCase()) {
       case 'collecte': return Colors.orange;
@@ -188,7 +202,7 @@ class _PrestationsPageState extends State<PrestationsPage> {
         title: const Text('Demandes client', style: TextStyle(fontWeight: FontWeight.w600)),
       ),
       body: loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator()) // Spinner pendant le chargement
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: prestations.length,
@@ -224,6 +238,7 @@ class _PrestationsPageState extends State<PrestationsPage> {
                         ],
                       ),
                     ),
+                    // Badge vert si la prestation a une tournée, gris sinon
                     trailing: p['tournee'] != null
                         ? Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -250,6 +265,7 @@ class _PrestationsPageState extends State<PrestationsPage> {
   }
 }
 
+// Page "Affecter Tournée" : permet d'affecter un facteur à une tournée pour une date donnée
 class AffecterFacteurPage extends StatefulWidget {
   const AffecterFacteurPage({super.key});
 
@@ -258,12 +274,12 @@ class AffecterFacteurPage extends StatefulWidget {
 }
 
 class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
-  List facteurs = [];
-  List tournees = [];
+  List facteurs = [];          // Liste des facteurs disponibles
+  List tournees = [];          // Liste des tournées disponibles
   bool loading = true;
-  int? selectedFacteurId;
-  int? selectedTourneeId;
-  DateTime selectedDate = DateTime.now();
+  int? selectedFacteurId;      // ID du facteur sélectionné dans le dropdown
+  int? selectedTourneeId;      // ID de la tournée sélectionnée dans le dropdown
+  DateTime selectedDate = DateTime.now(); // Date de début de l'affectation
 
   @override
   void initState() {
@@ -271,6 +287,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
     fetchData();
   }
 
+  // Récupère facteurs et tournées en parallèle depuis l'API
   Future<void> fetchData() async {
     final resFacteurs = await http.get(Uri.parse('$apiBase/facteurs'));
     final resTournees = await http.get(Uri.parse('$apiBase/tournees'));
@@ -281,6 +298,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
     });
   }
 
+  // Envoie une affectation via POST /affectations/simple
   Future<void> affecter() async {
     if (selectedFacteurId == null || selectedTourneeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -294,8 +312,8 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
       body: jsonEncode({
         'idFacteur': selectedFacteurId,
         'idTournee': selectedTourneeId,
-        'dateDebut': selectedDate.toIso8601String().split('T')[0],
-        'roleAffectation': 'TITULAIRE',
+        'dateDebut': selectedDate.toIso8601String().split('T')[0], // Format YYYY-MM-DD
+        'roleAffectation': 'TITULAIRE', // Rôle par défaut
       }),
     );
     ScaffoldMessenger.of(context).showSnackBar(
@@ -303,6 +321,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
     );
   }
 
+  // Ouvre le sélecteur de date natif Flutter
   Future<void> pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -331,6 +350,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                 children: [
                   const Text('Facteur', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
+                  // Dropdown listant tous les facteurs
                   DropdownButtonFormField<int?>(
                     initialValue: selectedFacteurId,
                     hint: const Text('Choisir un facteur'),
@@ -348,6 +368,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                   const SizedBox(height: 20),
                   const Text('Tournée', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
+                  // Dropdown listant toutes les tournées
                   DropdownButtonFormField<int?>(
                     initialValue: selectedTourneeId,
                     hint: const Text('Choisir une tournée'),
@@ -365,6 +386,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                   const SizedBox(height: 20),
                   const Text('Date de début', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
+                  // Bouton d'ouverture du calendrier
                   InkWell(
                     onTap: pickDate,
                     child: Container(
@@ -384,6 +406,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                     ),
                   ),
                   const SizedBox(height: 32),
+                  // Bouton de validation de l'affectation
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -405,6 +428,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
   }
 }
 
+// Page "Affecter Prestation" : permet d'associer une prestation à une tournée via un dropdown
 class AffecterTourneePage extends StatefulWidget {
   const AffecterTourneePage({super.key});
 
@@ -433,13 +457,14 @@ class _AffecterTourneePageState extends State<AffecterTourneePage> {
     });
   }
 
+  // Envoie un PUT /prestations/{id}/tournee pour modifier la tournée d'une prestation
   Future<void> setTournee(int idPrestation, int? idTournee) async {
     await http.put(
       Uri.parse('$apiBase/prestations/$idPrestation/tournee'),
       headers: {'Content-Type': 'application/json'},
-      body: idTournee == null ? 'null' : '$idTournee',
+      body: idTournee == null ? 'null' : '$idTournee', // null si on enlève la tournée
     );
-    await fetchData();
+    await fetchData(); // Rafraîchit la liste après modification
   }
 
   @override
@@ -458,7 +483,7 @@ class _AffecterTourneePageState extends State<AffecterTourneePage> {
               itemCount: prestations.length,
               itemBuilder: (context, index) {
                 final p = prestations[index];
-                final int? currentTourneeId = p['tournee']?['id'];
+                final int? currentTourneeId = p['tournee']?['id']; // ID de la tournée actuelle (peut être null)
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
@@ -480,6 +505,7 @@ class _AffecterTourneePageState extends State<AffecterTourneePage> {
                         ],
                       ),
                       const SizedBox(height: 12),
+                      // Dropdown pré-sélectionné sur la tournée actuelle de la prestation
                       DropdownButtonFormField<int?>(
                         initialValue: currentTourneeId,
                         decoration: InputDecoration(
@@ -505,6 +531,7 @@ class _AffecterTourneePageState extends State<AffecterTourneePage> {
   }
 }
 
+// Page "Planning du jour" : affiche pour chaque facteur sa tournée et ses infos d'affectation
 class PlanningPage extends StatefulWidget {
   const PlanningPage({super.key});
 
@@ -523,6 +550,7 @@ class _PlanningPageState extends State<PlanningPage> {
     fetchData();
   }
 
+  // Récupère facteurs et affectations depuis l'API
   Future<void> fetchData() async {
     final resFacteurs = await http.get(Uri.parse('$apiBase/facteurs'));
     final resAffectations = await http.get(Uri.parse('$apiBase/affectations'));
@@ -533,11 +561,12 @@ class _PlanningPageState extends State<PlanningPage> {
     });
   }
 
+  // Retourne l'affectation la plus récente d'un facteur (par date de début)
   Map? getAffectation(int idFacteur) {
     final aff = affectations.where((a) => a['facteur']['id'] == idFacteur).toList();
     if (aff.isEmpty) return null;
-    aff.sort((a, b) => b['dateDebut'].compareTo(a['dateDebut']));
-    return aff.first;
+    aff.sort((a, b) => b['dateDebut'].compareTo(a['dateDebut'])); // Trie par date décroissante
+    return aff.first; // Retourne la plus récente
   }
 
   @override
@@ -556,7 +585,7 @@ class _PlanningPageState extends State<PlanningPage> {
               itemCount: facteurs.length,
               itemBuilder: (context, index) {
                 final f = facteurs[index];
-                final aff = getAffectation(f['id'] as int);
+                final aff = getAffectation(f['id'] as int); // Récupère l'affectation du facteur
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
@@ -568,6 +597,7 @@ class _PlanningPageState extends State<PlanningPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // En-tête : avatar + nom/rôle du facteur
                       Row(
                         children: [
                           Container(
@@ -591,6 +621,7 @@ class _PlanningPageState extends State<PlanningPage> {
                       const SizedBox(height: 12),
                       const Divider(height: 1),
                       const SizedBox(height: 12),
+                      // Affiche les infos de tournée si le facteur a une affectation, sinon un message
                       if (aff != null) ...[
                         _InfoRow(icon: Icons.route, label: 'Tournée', value: 'T${aff['tournee']['numero']} — ${aff['tournee']['vehicule']}'),
                         const SizedBox(height: 6),
@@ -608,6 +639,7 @@ class _PlanningPageState extends State<PlanningPage> {
   }
 }
 
+// Widget réutilisable pour afficher une ligne icône + label + valeur dans le planning
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -628,6 +660,7 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
+// Page Administration : deux sections — Créer et Gérer
 class AdminPage extends StatelessWidget {
   const AdminPage({super.key});
 
@@ -636,7 +669,7 @@ class AdminPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        backgroundColor: Colors.black87,
+        backgroundColor: Colors.black87, // Barre noire pour distinguer la zone admin
         elevation: 0,
         title: const Text('Administration', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -646,6 +679,7 @@ class AdminPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Section Créer : formulaires de création
             const Text('Créer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
             const SizedBox(height: 12),
             Wrap(
@@ -658,6 +692,7 @@ class AdminPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
+            // Section Gérer : listes avec modification et suppression
             const Text('Gérer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
             const SizedBox(height: 12),
             Wrap(
@@ -676,6 +711,7 @@ class AdminPage extends StatelessWidget {
   }
 }
 
+// Page de création d'un nouveau facteur avec formulaire
 class NouveauFacteurPage extends StatefulWidget {
   const NouveauFacteurPage({super.key});
 
@@ -684,11 +720,12 @@ class NouveauFacteurPage extends StatefulWidget {
 }
 
 class _NouveauFacteurPageState extends State<NouveauFacteurPage> {
-  final nomController = TextEditingController();
-  final prenomController = TextEditingController();
-  String selectedContrat = 'CDI';
-  String selectedRole = 'TITULAIRE';
+  final nomController = TextEditingController();     // Contrôleur du champ Nom
+  final prenomController = TextEditingController(); // Contrôleur du champ Prénom
+  String selectedContrat = 'CDI';   // Valeur par défaut du dropdown Contrat
+  String selectedRole = 'TITULAIRE'; // Valeur par défaut du dropdown Rôle
 
+  // Envoie un POST /facteurs avec les données du formulaire
   Future<void> creer() async {
     if (nomController.text.isEmpty || prenomController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis tous les champs')));
@@ -737,6 +774,7 @@ class _NouveauFacteurPageState extends State<NouveauFacteurPage> {
   }
 }
 
+// Page de création d'une nouvelle tournée
 class NouvelleTourneePage extends StatefulWidget {
   const NouvelleTourneePage({super.key});
 
@@ -745,10 +783,11 @@ class NouvelleTourneePage extends StatefulWidget {
 }
 
 class _NouvelleTourneePageState extends State<NouvelleTourneePage> {
-  final numeroController = TextEditingController();
-  final ruesController = TextEditingController();
-  String selectedVehicule = 'VAE';
+  final numeroController = TextEditingController(); // Numéro de tournée
+  final ruesController = TextEditingController();   // Liste des rues
+  String selectedVehicule = 'VAE'; // Véhicule par défaut
 
+  // Envoie un POST /tournees avec les données du formulaire
   Future<void> creer() async {
     if (numeroController.text.isEmpty || ruesController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis tous les champs')));
@@ -789,6 +828,7 @@ class _NouvelleTourneePageState extends State<NouvelleTourneePage> {
   }
 }
 
+// Page de création d'une nouvelle prestation
 class NouvellePrestationPage extends StatefulWidget {
   const NouvellePrestationPage({super.key});
 
@@ -798,9 +838,9 @@ class NouvellePrestationPage extends StatefulWidget {
 
 class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
   final adresseController = TextEditingController();
-  String selectedType = 'BAL Jaune';
+  String selectedType = 'BAL Jaune'; // Type par défaut
   List tournees = [];
-  int? selectedTourneeId;
+  int? selectedTourneeId; // Tournée optionnelle
 
   @override
   void initState() {
@@ -813,13 +853,14 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
     setState(() => tournees = jsonDecode(res.body));
   }
 
+  // Envoie un POST /prestations — la tournée est optionnelle
   Future<void> creer() async {
     if (adresseController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis l\'adresse')));
       return;
     }
     final body = {'type': selectedType, 'adresse': adresseController.text};
-    if (selectedTourneeId != null) body['tournee'] = {'id': selectedTourneeId} as dynamic;
+    if (selectedTourneeId != null) body['tournee'] = {'id': selectedTourneeId} as dynamic; // Ajoute la tournée si sélectionnée
     final response = await http.post(Uri.parse('$apiBase/prestations'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Prestation créée !')));
@@ -854,6 +895,7 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
   }
 }
 
+// Page de gestion des facteurs : liste avec boutons modifier et supprimer
 class GererFacteursPage extends StatefulWidget {
   const GererFacteursPage({super.key});
 
@@ -876,11 +918,13 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
     setState(() { facteurs = jsonDecode(res.body); loading = false; });
   }
 
+  // Envoie un DELETE /facteurs/{id} puis rafraîchit la liste
   Future<void> supprimer(int id) async {
     await http.delete(Uri.parse('$apiBase/facteurs/$id'));
     await fetchData();
   }
 
+  // Ouvre une boîte de dialogue avec un formulaire pré-rempli pour modifier un facteur
   void modifier(Map facteur) {
     final nomController = TextEditingController(text: facteur['nom']);
     final prenomController = TextEditingController(text: facteur['prenom']);
@@ -888,7 +932,7 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
     String role = facteur['role'];
     showDialog(
       context: context,
-      builder: (_) => StatefulBuilder(
+      builder: (_) => StatefulBuilder( // StatefulBuilder permet de rafraîchir uniquement la dialog
         builder: (context, setStateDialog) => AlertDialog(
           title: const Text('Modifier le facteur'),
           content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -904,9 +948,10 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
               onPressed: () async {
+                // Envoie un PUT /facteurs/{id} avec les nouvelles valeurs
                 await http.put(Uri.parse('$apiBase/facteurs/${facteur['id']}'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'nom': nomController.text.toUpperCase(), 'prenom': prenomController.text, 'contrat': contrat, 'role': role}));
                 Navigator.pop(context);
-                await fetchData();
+                await fetchData(); // Rafraîchit la liste après modification
               },
               child: const Text('Enregistrer'),
             ),
@@ -936,6 +981,7 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
               subtitle: Text('${f['role']} — ${f['contrat']}', style: const TextStyle(fontSize: 13, color: Colors.grey)),
               trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                 IconButton(icon: const Icon(Icons.edit, color: Colors.deepPurple), onPressed: () => modifier(f)),
+                // Bouton supprimer avec confirmation via AlertDialog
                 IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => showDialog(context: context, builder: (_) => AlertDialog(title: const Text('Supprimer ?'), content: Text('Supprimer ${f['prenom']} ${f['nom']} ?'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white), onPressed: () { Navigator.pop(context); supprimer(f['id'] as int); }, child: const Text('Supprimer'))]))),
               ]),
             ),
@@ -946,6 +992,7 @@ class _GererFacteursPageState extends State<GererFacteursPage> {
   }
 }
 
+// Page de gestion des tournées : liste avec modifier et supprimer (même logique que GererFacteursPage)
 class GererTourneesPage extends StatefulWidget {
   const GererTourneesPage({super.key});
 
@@ -1036,6 +1083,7 @@ class _GererTourneesPageState extends State<GererTourneesPage> {
   }
 }
 
+// Page de gestion des prestations : liste avec modifier et supprimer (même logique)
 class GererPrestationsPage extends StatefulWidget {
   const GererPrestationsPage({super.key});
 
@@ -1123,6 +1171,7 @@ class _GererPrestationsPageState extends State<GererPrestationsPage> {
   }
 }
 
+// Page vide utilisée comme placeholder pour les pages non encore développées
 class PlaceholderPage extends StatelessWidget {
   final String title;
   const PlaceholderPage({super.key, required this.title});
