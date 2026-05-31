@@ -306,7 +306,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
       );
       return;
     }
-    await http.post(
+    final response = await http.post(
       Uri.parse('$apiBase/affectations/simple'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -316,9 +316,21 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
         'roleAffectation': 'TITULAIRE', // Rôle par défaut
       }),
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(backgroundColor: Colors.green, content: Text('Affectation enregistrée !')),
-    );
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(backgroundColor: Colors.green, content: Text('Affectation enregistrée !')),
+      );
+      // Réinitialise les sélections après affectation réussie
+      setState(() {
+        selectedFacteurId = null;
+        selectedTourneeId = null;
+        selectedDate = DateTime.now();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(backgroundColor: Colors.red, content: Text('Erreur lors de l\'affectation')),
+      );
+    }
   }
 
   // Ouvre le sélecteur de date natif Flutter
@@ -532,6 +544,7 @@ class _AffecterTourneePageState extends State<AffecterTourneePage> {
 }
 
 // Page "Planning du jour" : affiche pour chaque facteur sa tournée et ses infos d'affectation
+// Se rafraîchit automatiquement à chaque retour sur la page via didChangeDependencies
 class PlanningPage extends StatefulWidget {
   const PlanningPage({super.key});
 
@@ -543,11 +556,25 @@ class _PlanningPageState extends State<PlanningPage> {
   List facteurs = [];
   List affectations = [];
   bool loading = true;
+  bool _initialized = false; // Evite un double chargement au premier affichage
 
   @override
   void initState() {
     super.initState();
     fetchData();
+  }
+
+  // didChangeDependencies est appelé à chaque fois que la page redevient visible
+  // Permet de rafraîchir automatiquement les données au retour depuis une autre page
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) {
+      // Rechargement uniquement si la page a déjà été initialisée une fois
+      fetchData();
+    } else {
+      _initialized = true;
+    }
   }
 
   // Récupère facteurs et affectations depuis l'API
@@ -577,6 +604,16 @@ class _PlanningPageState extends State<PlanningPage> {
         backgroundColor: const Color(0xFFFFD700),
         elevation: 0,
         title: const Text('Planning du jour', style: TextStyle(fontWeight: FontWeight.w600)),
+        actions: [
+          // Bouton de rafraîchissement manuel
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.black87),
+            onPressed: () {
+              setState(() { loading = true; });
+              fetchData();
+            },
+          ),
+        ],
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
