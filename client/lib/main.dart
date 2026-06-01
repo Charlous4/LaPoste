@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http; // Package pour faire des requêtes HTT
 import 'dart:convert'; // Pour encoder/décoder le JSON
 
 // Adresse de base de l'API Spring Boot — à modifier à chaque changement de réseau
-const String apiBase = 'http://192.168.1.14:8080'; // A MODIFIER A CHAQUE FOIS
+const String apiBase = 'http://192.168.104.52:8080'; // A MODIFIER A CHAQUE FOIS
 
 void main() {
   runApp(const MyApp()); // Point d'entrée de l'application Flutter
@@ -588,12 +588,12 @@ class _PlanningPageState extends State<PlanningPage> {
     });
   }
 
-  // Retourne l'affectation la plus récente d'un facteur (par date de début)
+  // Retourne l'affectation la plus récente d'un facteur (par ID — le plus grand = le plus récent)
   Map? getAffectation(int idFacteur) {
     final aff = affectations.where((a) => a['facteur']['id'] == idFacteur).toList();
     if (aff.isEmpty) return null;
-    aff.sort((a, b) => b['dateDebut'].compareTo(a['dateDebut'])); // Trie par date décroissante
-    return aff.first; // Retourne la plus récente
+    aff.sort((a, b) => (b['id'] as int).compareTo(a['id'] as int)); // Trie par ID décroissant
+    return aff.first;
   }
 
   @override

@@ -1,4 +1,4 @@
--- Adminer 5.4.1 PostgreSQL 15.15 dump
+-- Adminer 5.4.1 PostgreSQL 15.18 dump
 
 DROP TABLE IF EXISTS "affectation";
 DROP SEQUENCE IF EXISTS affectation_id_seq;
@@ -22,7 +22,24 @@ INSERT INTO "affectation" ("id", "id_facteur", "id_tournee", "date_debut", "date
 (4,	2,	1,	'2026-05-18',	NULL,	'TITULAIRE'),
 (5,	2,	4,	'2026-05-05',	NULL,	'TITULAIRE'),
 (6,	2,	1,	'2026-05-11',	NULL,	'TITULAIRE'),
-(7,	3,	4,	'2026-05-25',	NULL,	'TITULAIRE');
+(7,	3,	4,	'2026-05-25',	NULL,	'TITULAIRE'),
+(8,	2,	3,	'2026-05-31',	NULL,	'TITULAIRE'),
+(9,	2,	1,	'2026-05-31',	NULL,	'TITULAIRE'),
+(10,	2,	1,	'2026-05-31',	NULL,	'TITULAIRE'),
+(43,	2,	1,	'2026-06-01',	NULL,	'TITULAIRE'),
+(44,	3,	3,	'2026-06-01',	NULL,	'TITULAIRE'),
+(45,	2,	5,	'2026-06-01',	NULL,	'TITULAIRE'),
+(46,	2,	4,	'2026-06-08',	NULL,	'TITULAIRE'),
+(47,	2,	5,	'2026-05-31',	NULL,	'TITULAIRE'),
+(48,	2,	5,	'2026-06-08',	NULL,	'TITULAIRE'),
+(49,	2,	5,	'2026-05-31',	NULL,	'TITULAIRE'),
+(50,	2,	1,	'2026-06-01',	NULL,	'TITULAIRE'),
+(78,	3,	4,	'2026-06-01',	NULL,	'TITULAIRE'),
+(79,	2,	3,	'2026-06-01',	NULL,	'TITULAIRE'),
+(80,	2,	1,	'2026-06-01',	NULL,	'TITULAIRE'),
+(81,	3,	4,	'2026-06-01',	NULL,	'TITULAIRE'),
+(82,	3,	5,	'2026-06-01',	NULL,	'TITULAIRE'),
+(83,	2,	4,	'2026-06-01',	NULL,	'TITULAIRE');
 
 DROP TABLE IF EXISTS "facteur";
 DROP SEQUENCE IF EXISTS facteur_id_seq;
@@ -79,11 +96,12 @@ INSERT INTO "tournee" ("id", "numero", "vehicule", "rues") VALUES
 (1,	3101,	'VAE',	'Rue Alfred Herault, Rue du General Reibel, Rue du General Sarrail'),
 (2,	3107,	'VAE',	'Rue Jeanne d Arc, Rue de la Chevretterie, Bd Victor Hugo, Faubourg St Jacques, Rue Hilaire Gilbert'),
 (3,	9113,	'VCAE',	'Rue Bourbon, Rue des limousins, Av Pierre Ablin'),
-(4,	9411,	'VOITURE',	'Rue Francois Arago, Rue Gustave Eiffeil, Rue de la Bastille');
+(4,	9411,	'VOITURE',	'Rue Francois Arago, Rue Gustave Eiffeil, Rue de la Bastille'),
+(5,	3111,	'VOITURE',	'Rue de la Grande Eau');
 
 ALTER TABLE ONLY "public"."affectation" ADD CONSTRAINT "affectation_id_facteur_fkey" FOREIGN KEY (id_facteur) REFERENCES facteur(id) NOT DEFERRABLE;
 ALTER TABLE ONLY "public"."affectation" ADD CONSTRAINT "affectation_id_tournee_fkey" FOREIGN KEY (id_tournee) REFERENCES tournee(id) NOT DEFERRABLE;
 
 ALTER TABLE ONLY "public"."prestation" ADD CONSTRAINT "prestation_id_tournee_fkey" FOREIGN KEY (id_tournee) REFERENCES tournee(id) NOT DEFERRABLE;
 
--- 2026-05-06 12:30:58 UTC
+-- 2026-06-01 09:18:23 UTC
