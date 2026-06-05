@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http; // Package pour faire des requêtes HTT
 import 'dart:convert'; // Pour encoder/décoder le JSON
 
 // Adresse de base de l'API Spring Boot — à modifier à chaque changement de réseau
-const String apiBase = 'http://192.168.104.52:8080'; // A MODIFIER A CHAQUE FOIS
+const String apiBase = 'http://192.168.1.14:8080'; // A MODIFIER A CHAQUE FOIS
 
 void main() {
   runApp(const MyApp()); // Point d'entrée de l'application Flutter
