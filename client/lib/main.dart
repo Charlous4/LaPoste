@@ -300,9 +300,9 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
 
   // Envoie une affectation via POST /affectations/simple
   Future<void> affecter() async {
-    if (selectedFacteurId == null || selectedTourneeId == null) {
+    if (selectedFacteurId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sélectionne un facteur et une tournée')),
+        const SnackBar(content: Text('Sélectionne un facteur')),
       );
       return;
     }
@@ -389,10 +389,13 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
                     ),
-                    items: tournees.map((t) => DropdownMenuItem<int?>(
-                      value: t['id'] as int,
-                      child: Text('T${t['numero']} — ${t['vehicule']}'),
-                    )).toList(),
+                    items: [
+                      const DropdownMenuItem<int?>(value: null, child: Text('Aucune tournée', style: TextStyle(color: Colors.grey))),
+                      ...tournees.map((t) => DropdownMenuItem<int?>(
+                        value: t['id'] as int,
+                        child: Text('T${t['numero']} — ${t['vehicule']}'),
+                      )),
+                    ],
                     onChanged: (val) => setState(() => selectedTourneeId = val),
                   ),
                   const SizedBox(height: 20),
@@ -658,15 +661,24 @@ class _PlanningPageState extends State<PlanningPage> {
                       const SizedBox(height: 12),
                       const Divider(height: 1),
                       const SizedBox(height: 12),
-                      // Affiche les infos de tournée si le facteur a une affectation, sinon un message
-                      if (aff != null) ...[
+                      
+                      // --- LA CORRECTION EST ICI : Gestion sécurisée de l'affichage ---
+                      if (aff != null && aff['tournee'] != null) ...[
+                        // CAS 1 : Affectation AVEC tournée
                         _InfoRow(icon: Icons.route, label: 'Tournée', value: 'T${aff['tournee']['numero']} — ${aff['tournee']['vehicule']}'),
                         const SizedBox(height: 6),
                         _InfoRow(icon: Icons.location_on_outlined, label: 'Rues', value: aff['tournee']['rues']),
                         const SizedBox(height: 6),
                         _InfoRow(icon: Icons.calendar_today, label: 'Depuis', value: aff['dateDebut']),
+                      ] else if (aff != null && aff['tournee'] == null) ...[
+                        // CAS 2 : Affectation SANS tournée ("Aucune tournée")
+                        _InfoRow(icon: Icons.calendar_today, label: 'Depuis', value: aff['dateDebut']),
+                        const SizedBox(height: 6),
+                        const Text('Aucune tournée assignée', style: TextStyle(color: Colors.orange, fontSize: 13, fontWeight: FontWeight.w600)),
                       ] else
+                        // CAS 3 : Aucune affectation du tout
                         const Text('Aucune affectation', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      // -----------------------------------------------------------------
                     ],
                   ),
                 );
