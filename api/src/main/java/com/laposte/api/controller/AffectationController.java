@@ -50,16 +50,18 @@ public class AffectationController {
         // 1. On affecte le facteur
         a.setFacteur(facteurRepo.findById((Integer) body.get("idFacteur")).orElse(null));
         
-        // 2. LA CORRECTION : On vérifie si idTournee est null avant de chercher
+        // 2. On gère la tournée (avec la sécurité pour "Aucune tournée")
         Integer idTournee = (Integer) body.get("idTournee");
         if (idTournee != null) {
             a.setTournee(tourneeRepo.findById(idTournee).orElse(null));
         } else {
-            a.setTournee(null); // Gère le cas "Aucune tournée"
+            a.setTournee(null); 
         }
         
-        // 3. On ajoute les autres infos
-        a.setDateDebut(java.time.LocalDate.parse((String) body.get("dateDebut")));
+        // 3. LA NOUVELLE IDÉE : On force la date à AUJOURD'HUI automatiquement !
+        a.setDateDebut(java.time.LocalDate.now()); 
+        
+        // 4. On garde le rôle
         a.setRoleAffectation((String) body.get("roleAffectation"));
         
         return repo.save(a);

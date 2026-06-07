@@ -279,7 +279,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
   bool loading = true;
   int? selectedFacteurId;      // ID du facteur sélectionné dans le dropdown
   int? selectedTourneeId;      // ID de la tournée sélectionnée dans le dropdown
-  DateTime selectedDate = DateTime.now(); // Date de début de l'affectation
+  // On a supprimé la variable selectedDate !
 
   @override
   void initState() {
@@ -287,7 +287,6 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
     fetchData();
   }
 
-  // Récupère facteurs et tournées en parallèle depuis l'API
   Future<void> fetchData() async {
     final resFacteurs = await http.get(Uri.parse('$apiBase/facteurs'));
     final resTournees = await http.get(Uri.parse('$apiBase/tournees'));
@@ -298,7 +297,6 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
     });
   }
 
-  // Envoie une affectation via POST /affectations/simple
   Future<void> affecter() async {
     if (selectedFacteurId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -312,19 +310,17 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
       body: jsonEncode({
         'idFacteur': selectedFacteurId,
         'idTournee': selectedTourneeId,
-        'dateDebut': selectedDate.toIso8601String().split('T')[0], // Format YYYY-MM-DD
-        'roleAffectation': 'TITULAIRE', // Rôle par défaut
+        // ON N'ENVOIE PLUS LA DATE ICI, LE BACKEND S'EN CHARGE !
+        'roleAffectation': 'TITULAIRE',
       }),
     );
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(backgroundColor: Colors.green, content: Text('Affectation enregistrée !')),
       );
-      // Réinitialise les sélections après affectation réussie
       setState(() {
         selectedFacteurId = null;
         selectedTourneeId = null;
-        selectedDate = DateTime.now();
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -333,16 +329,7 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
     }
   }
 
-  // Ouvre le sélecteur de date natif Flutter
-  Future<void> pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2024),
-      lastDate: DateTime(2030),
-    );
-    if (picked != null) setState(() => selectedDate = picked);
-  }
+  // On a supprimé la fonction pickDate() !
 
   @override
   Widget build(BuildContext context) {
@@ -362,7 +349,6 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                 children: [
                   const Text('Facteur', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
-                  // Dropdown listant tous les facteurs
                   DropdownButtonFormField<int?>(
                     initialValue: selectedFacteurId,
                     hint: const Text('Choisir un facteur'),
@@ -380,7 +366,6 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                   const SizedBox(height: 20),
                   const Text('Tournée', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 8),
-                  // Dropdown listant toutes les tournées
                   DropdownButtonFormField<int?>(
                     initialValue: selectedTourneeId,
                     hint: const Text('Choisir une tournée'),
@@ -398,30 +383,10 @@ class _AffecterFacteurPageState extends State<AffecterFacteurPage> {
                     ],
                     onChanged: (val) => setState(() => selectedTourneeId = val),
                   ),
-                  const SizedBox(height: 20),
-                  const Text('Date de début', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  // Bouton d'ouverture du calendrier
-                  InkWell(
-                    onTap: pickDate,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today, size: 18, color: Colors.grey),
-                          const SizedBox(width: 12),
-                          Text('${selectedDate.day}/${selectedDate.month}/${selectedDate.year}', style: const TextStyle(fontSize: 15)),
-                        ],
-                      ),
-                    ),
-                  ),
+                  
+                  // ON A SUPPRIMÉ TOUT LE BLOC "DATE DE DÉBUT" ICI !
+                  
                   const SizedBox(height: 32),
-                  // Bouton de validation de l'affectation
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
