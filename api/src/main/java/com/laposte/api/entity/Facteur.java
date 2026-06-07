@@ -1,6 +1,16 @@
 package com.laposte.api.entity;
 
-import jakarta.persistence.*;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "facteur")
@@ -14,6 +24,16 @@ public class Facteur {
     private String prenom;
     private String contrat;
     private String role;
+
+    // ------------------------------------------------------------------
+    // LA SOLUTION EST ICI :
+    // On lie le facteur à ses affectations.
+    // cascade = CascadeType.REMOVE -> Supprime l'historique des affectations 
+    // de ce facteur s'il est supprimé de la base de données.
+    // ------------------------------------------------------------------
+    @JsonIgnore 
+    @OneToMany(mappedBy = "facteur", cascade = CascadeType.REMOVE)
+    private List<Affectation> affectations;
 
     // Getters et Setters
     public Integer getId() { return id; }
@@ -30,4 +50,7 @@ public class Facteur {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public List<Affectation> getAffectations() { return affectations; }
+    public void setAffectations(List<Affectation> affectations) { this.affectations = affectations; }
 }

@@ -1,2 +1,9 @@
 IP de la BDD : api/src/main/resources/application.properties
 IP de la Machine physique : client/lib/main.dart
+
+COMMANDE ET CHEMIN
+cd .\api
+.\mvnw.cmd spring-boot:run
+
+cd .\client
+flutter build windows
