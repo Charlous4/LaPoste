@@ -913,12 +913,35 @@ class _NouvellePrestationPageState extends State<NouvellePrestationPage> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Remplis l\'adresse')));
       return;
     }
-    final body = {'type': selectedType, 'adresse': adresseController.text};
-    if (selectedTourneeId != null) body['tournee'] = {'id': selectedTourneeId} as dynamic;
-    final response = await http.post(Uri.parse('$apiBase/prestations'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Prestation créée !')));
-      adresseController.clear();
+
+    // CORRECTION ICI : On précise <String, dynamic> pour éviter le crash Dart
+    final Map<String, dynamic> body = {
+      'type': selectedType, 
+      'adresse': adresseController.text
+    };
+    
+    if (selectedTourneeId != null) {
+      body['tournee'] = {'id': selectedTourneeId}; 
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('$apiBase/prestations'), 
+        headers: {'Content-Type': 'application/json'}, 
+        body: jsonEncode(body)
+      );
+      
+      if (!mounted) return;
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Prestation créée !')));
+        adresseController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.red, content: Text('Erreur serveur lors de la création')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text('Erreur : $e')));
     }
   }
 
@@ -1063,8 +1086,15 @@ class _GererTourneesPageState extends State<GererTourneesPage> {
   }
 
   Future<void> supprimer(int id) async {
-    await http.delete(Uri.parse('$apiBase/tournees/$id'));
-    await fetchData();
+    final response = await http.delete(Uri.parse('$apiBase/tournees/$id'));
+    if (response.statusCode == 200) {
+      await fetchData(); // On rafraîchit uniquement si ça a marché
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(backgroundColor: Colors.red, content: Text('Erreur : Impossible de supprimer la tournée'))
+      );
+    }
   }
 
   void modifier(Map tournee) {
